@@ -2,8 +2,8 @@ const { Router } = require('express');
 const app = Router();
 
 const Users = require('../controllers/users/users');
-const Treatments = require('../controllers/treatments/treatments');
-const Appointments = require('../controllers/appointments/appointments');
+// const Treatments = require('../controllers/treatments/treatments');
+// const Appointments = require('../controllers/appointments/appointments');
 
 // user routes
 app.get('/users', Users.index);
@@ -14,16 +14,16 @@ app.put('/users/:userId', Users.updateBy);
 // app.delete('/users/:userId', Users.removeBy);
 
 // treatment routes
-app.get('/treatments', Treatments.index);
-app.get('/treatments/:treatmentId', Treatments.findBy);
-app.get('/treatments/:treatmentId/appointments', Treatments.findAppointmentsBy);
-app.post('/treatments', Treatments.create);
-app.put('/treatments/:treatmentId', Treatments.updateBy);
+// app.get('/treatments', Treatments.index);
+// app.get('/treatments/:treatmentId', Treatments.findBy);
+// app.get('/treatments/:treatmentId/appointments', Treatments.findAppointmentsBy);
+// app.post('/treatments', Treatments.create);
+// app.put('/treatments/:treatmentId', Treatments.updateBy);
 // app.delete('/treatment/:userId', Treatment.removeBy);
 
 // appoinment routes
-app.get('/appointments', Appointments.index);
-app.get('/appointments/:appointmentsId', Appointments.findBy);
+// app.get('/appointments', Appointments.index);
+// app.get('/appointments/:appointmentsId', Appointments.findBy);
 // app.post('/appointments', Appointments.create);
 // app.put('/appointments/:appointmentsId', Appointments.updateBy);
 // app.delete('/treatment/:userId', Treatment.removeBy);
