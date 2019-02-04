@@ -18,8 +18,25 @@ const index = (req, res) => {
         })
 }
 
+const removeBy = (req, res) => {
+    Appointment.
+        deleteOne({_id: req.params.appointmentId})
+        .then(data => {
+            res.json({
+                type: 'Removing an appointment',
+                data: data
+            })
+            .status(200)
+        })
+        .catch(err => {
+            console.log(`caught error: ${err}`);
+            return res.status(500).json(err);
+        })
+}
+
 module.exports = {
-    index
+    index,
+    removeBy
     // findBy,
     // create
     // updateBy,

@@ -39,10 +39,11 @@ const findBy = (req, res) => {
 const createAppointment = (body, day) => {
     const newAppointment = new Appointment({
         _id: mongoose.Types.ObjectId(),
-        treatment: body._id,
-        day,
+        name: 'Juan',
         phoneNumber: 657578968,
-        name: 'Juan'
+        day,
+        treatment: body._id,
+        user: body.user
     })
     newAppointment.save()
 

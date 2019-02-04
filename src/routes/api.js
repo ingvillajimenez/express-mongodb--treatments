@@ -21,8 +21,9 @@ app.post('/treatments', Treatments.create);
 // app.put('/treatments/:treatmentId', Treatments.updateBy);
 // app.delete('/treatment/:userId', Treatment.removeBy);
 
-// appoinment routes
+// appointment routes
 app.get('/appointments', Appointments.index);
+app.get('/appointments/:appointmentId', Appointments.removeBy)
 // app.get('/appointments/:appointmentsId', Appointments.findBy);
 // app.post('/appointments', Appointments.create);
 // app.put('/appointments/:appointmentsId', Appointments.updateBy);
