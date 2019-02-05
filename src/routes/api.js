@@ -9,9 +9,12 @@ const Appointments = require('../controllers/appointments/appointments');
 app.get('/users', Users.index);
 app.get('/users/:userId', Users.findBy);
 app.get('/users/:userId/treatments', Users.findTreatmentsBy)
-app.post('/users', Users.create);
+// app.post('/users', Users.create);
 app.put('/users/:userId', Users.updateBy);
 // app.delete('/users/:userId', Users.removeBy);
+
+//auth routes (para crear un usuario para que se registre)
+app.post('/auth/signup', Users.signup)
 
 // treatment routes
 app.get('/treatments', Treatments.index);
@@ -23,7 +26,7 @@ app.post('/treatments', Treatments.create);
 
 // appointment routes
 app.get('/appointments', Appointments.index);
-app.get('/appointments/:appointmentId', Appointments.removeBy)
+app.get('/appointments/:appointmentId', Appointments.removeBy);
 // app.get('/appointments/:appointmentsId', Appointments.findBy);
 // app.post('/appointments', Appointments.create);
 // app.put('/appointments/:appointmentsId', Appointments.updateBy);

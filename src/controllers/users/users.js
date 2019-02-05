@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+
 const User = require('../../models/User');
 const Treatment = require('../../models/Treatment')
 
@@ -39,6 +41,51 @@ const create = (req, res) => {
         .catch(err => {
             console.log(`caugth err: ${err}`);
             return res.status(500).json({message: `Post Failed`});
+        })
+}
+
+const signup = (req, res) => {
+    User
+        .find({email: req.body.email})
+        .exec()
+        .then(users => {
+            if(users.length < 1) {
+                //save new user using bcrypt
+                bcrypt.hash(req.body.password, 10, (error, hash) => {
+                    if(error) {
+                        return res
+                                .status(500)
+                                .json({
+                                    message: error
+                                })
+                    }
+                    //create new user
+                    const newUser =  new User ({
+                        _id: mongoose.Types.ObjectId(),
+                        name: req.body.name,
+                        email: req.body.email,
+                        password: hash,
+                        phoneNumber: req.body.phoneNumber
+                    });
+
+                    newUser
+                        .save()
+                        .then(saved => {
+                            res
+                                .status(200)
+                                .json({
+                                    message: 'User created successfully',
+                                    data: saved
+                                });
+                        })
+                });
+            } else {
+                res
+                    .status(422)
+                    .json({
+                        message: 'User already exists.'
+                    })
+            }
         })
 }
 
@@ -101,5 +148,6 @@ module.exports = {
     create,
     findBy,
     updateBy,
-    findTreatmentsBy
+    findTreatmentsBy,
+    signup
 }
