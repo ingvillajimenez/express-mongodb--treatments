@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const User = require('../../models/User');
 const Treatment = require('../../models/Treatment')
@@ -12,9 +13,27 @@ const index = (req, res) => {
             res
                 .json({
                     type: 'Getting users',
-                    data: data
+                    data: data,
+                    total: data.length
                 })
                 .status(200)
+        })
+        .catch(err => {
+            console.log(`caugth err: ${err}`);
+            return res.status(500).json(err);
+        })
+}
+
+const findBy = (req, res) => {
+    User
+        .findById(req.params.userId)
+        .exec()
+        .then(data => {
+            res.json({
+                type: 'Found User by Id',
+                data: data
+            })
+            .status(200)
         })
         .catch(err => {
             console.log(`caugth err: ${err}`);
@@ -89,39 +108,107 @@ const signup = (req, res) => {
         })
 }
 
-const findBy = (req, res) => {
+const login = (req, res) => {
     User
-        .findById(req.params.userId)
+        .find({email: req.body.email})
         .exec()
-        .then(data => {
-            res.json({
-                type: 'Found User by Id',
-                data: data
-            })
-            .status(200)
-        })
-        .catch(err => {
-            console.log(`caugth err: ${err}`);
-            return res.status(500).json(err);
+        .then(user => {
+            if(user.length > 0) {
+                //comparacion de passwords
+                bcrypt.compare(req.body.password, user[0].password, (error, result) => {
+                    if(error) {
+                        return res
+                                .status(401)
+                                .json({
+                                    message: 'Authentication Failed'
+                                })
+                    }
+                    //se crea token
+                    if(result) {
+                        const token = jwt.sign({
+                            name: user[0].name,
+                            email: user[0].email
+                        }, process.env.JWT_SECRETKEY, {
+                            expiresIn: '1hr'
+                        });
+
+                        return res
+                                .status(200)
+                                .json({
+                                    message: 'Authentication Successful',
+                                    token
+                                });
+                    }
+
+                    res
+                        .status(401)
+                        .json({
+                            message: 'Authentication Failed'
+                        })
+                });
+            } else {
+                res
+                    .status(422)
+                    .json({
+                        message: 'Authentication Failed'
+                    })
+            }
         })
 }
 
 const updateBy = (req, res) => {
     User
-        .updateOne({_id: req.params.userId}, {name: req.body.name, email: req.body.email})
-        .then(data => {
-            res
-                .json({
-                    type: 'Update user',
-                    data: data
-                })
-                .status(200)
+        .findOne({_id: req.params.userId})
+        .then(user => {
+            bcrypt.compare(req.body.password, user.password, (error, result) => {
+                if(result) {
+                    user.name = req.body.name;
+                    user.email = req.body.email;
+                    user.phoneNumber = req.body.phoneNumber;
+
+                    user
+                        .save()
+                        .then(saved => {
+                            res
+                                .status(201)
+                                .json({
+                                    message: 'User updated successfuly',
+                                    user: saved
+                                });
+                        })
+                } else {
+                    bcrypt.hash(req.body.password, 10, (error, hash) => {
+                        if(error) {
+                            return res
+                                    .status(500)
+                                    .json({
+                                        message: error
+                                    });
+                        }
+
+                        user.name = req.body.name;
+                        user.email = req.body.email;
+                        user.phoneNumber = req.body.phoneNumber;
+                        user.password = hash;
+
+                        user
+                            .save()
+                            .then(saved => {
+                                res
+                                    .status(201)
+                                    .json({
+                                        message: 'User updated successfully',
+                                        user: saved
+                                    });
+                            })
+                    });
+                }
+            });
         })
         .catch(err => {
-            console.log(`caugth err ${err}`);
-            return res.status(500).json(err);
+            console.log(`caught the error: ${err}`);
+            return res.status(404).json({'type': "Not Found."});
         })
-
 }
 
 const findTreatmentsBy = (req, res) => {
@@ -149,5 +236,6 @@ module.exports = {
     findBy,
     updateBy,
     findTreatmentsBy,
-    signup
+    signup,
+    login
 }
