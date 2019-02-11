@@ -3,7 +3,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const User = require('../../models/User');
-const Treatment = require('../../models/Treatment')
+const Treatment = require('../../models/Treatment');
+const Appointment =  require('../../models/Appointment');
 
 const index = (req, res) => {
     User
@@ -38,28 +39,6 @@ const findBy = (req, res) => {
         .catch(err => {
             console.log(`caugth err: ${err}`);
             return res.status(500).json(err);
-        })
-}
-
-const create = (req, res) => {
-    const newUser = new User({
-        _id: mongoose.Types.ObjectId(),
-        name: req.body.name,
-        email: req.body.email
-    })
-    newUser
-        .save()
-        .then(data => {
-            res
-                .json({
-                    type: 'New User',
-                    data: data
-                })
-                .status(200)
-        })
-        .catch(err => {
-            console.log(`caugth err: ${err}`);
-            return res.status(500).json({message: `Post Failed`});
         })
 }
 
@@ -230,12 +209,35 @@ const findTreatmentsBy = (req, res) => {
         })
 }
 
+const deleteBy = (req, res) => {
+    User
+        .findById(req.params.userId, (err, user) => {
+            if(!err) {
+                Appointment.deleteMany({user: {$in: [user._id]}}, (err) => {})
+                Treatment.deleteMany({user: {$in: [user._id]}}, (err) => {})
+                user
+                    .remove()
+                    .then(() => {
+                        res
+                            .status(200)
+                            .json({
+                                message: 'User was deleted.'
+                            });
+                    });
+            }
+        })
+        .catch(err => {
+            console.log(`caught err ${err}`);
+            return res.status(401).json({message: 'You do not have permision to delete'})
+        })
+} 
+
 module.exports = {
     index,
-    create,
     findBy,
     updateBy,
     findTreatmentsBy,
     signup,
-    login
+    login,
+    deleteBy
 }
